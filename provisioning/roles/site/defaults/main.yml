@@ -1,0 +1,4 @@
+certbot_email: dmitry.sv@wecandevelopit.com
+certbot_hosts:
+  - damien-side.fun
+  - api.damien-side.fun
