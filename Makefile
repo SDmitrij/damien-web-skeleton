@@ -26,15 +26,15 @@ api-composer-install:
 build: build-gateway build-frontend build-api
 
 build-gateway:
-	docker --log-level=debug build --pull --file=gateway/docker/production/nginx/Dockerfile --tag=${REGISTRY}/damien-gateway:${IMAGE_TAG} gateway/docker
+	docker --log-level=debug build --pull --file=gateway/docker/production/nginx/Dockerfile --tag=${REGISTRY}/damien-side.fun.gateway:${IMAGE_TAG} gateway/docker
 
 build-frontend:
-	docker --log-level=debug build --pull --file=frontend/docker/production/nginx/Dockerfile --tag=${REGISTRY}/damien-front:${IMAGE_TAG} frontend
+	docker --log-level=debug build --pull --file=frontend/docker/production/nginx/Dockerfile --tag=${REGISTRY}/damien-side.fun.frontend:${IMAGE_TAG} frontend
 
 build-api:
-	docker --log-level=debug build --pull --file=api/docker/production/php-fpm/Dockerfile --tag=${REGISTRY}/damien-api-php-fpm:${IMAGE_TAG} api
-	docker --log-level=debug build --pull --file=api/docker/production/nginx/Dockerfile --tag=${REGISTRY}/damien-api:${IMAGE_TAG} api
-	docker --log-level=debug build --pull --file=api/docker/production/php-cli/Dockerfile --tag=${REGISTRY}/damien-api-php-cli:${IMAGE_TAG} api
+	docker --log-level=debug build --pull --file=api/docker/production/php-fpm/Dockerfile --tag=${REGISTRY}/damien-side.fun.php-fpm:${IMAGE_TAG} api
+	docker --log-level=debug build --pull --file=api/docker/production/nginx/Dockerfile --tag=${REGISTRY}/damien-side.fun.api:${IMAGE_TAG} api
+	docker --log-level=debug build --pull --file=api/docker/production/php-cli/Dockerfile --tag=${REGISTRY}/damien-side.fun.php-cli:${IMAGE_TAG} api
 
 try-build:
 	REGISTRY=localhost IMAGE_TAG=0 make build
@@ -46,14 +46,15 @@ api-lint:
 push: push-gateway push-frontend push-api
 
 push-gateway:
-	docker push ${REGISTRY}/damien-gateway:${IMAGE_TAG}
+	docker push ${REGISTRY}/damien-side.fun.gateway:${IMAGE_TAG}
 
 push-frontend:
-	docker push ${REGISTRY}/damien-front:${IMAGE_TAG}
+	docker push ${REGISTRY}/damien-side.fun.frontend:${IMAGE_TAG}
 
 push-api:
-	docker push ${REGISTRY}/damien-api:${IMAGE_TAG}
-	docker push ${REGISTRY}/damien-api-php-fpm:${IMAGE_TAG}
+	docker push ${REGISTRY}/damien-side.fun.api:${IMAGE_TAG}
+	docker push ${REGISTRY}/damien-side.fun.php-fpm:${IMAGE_TAG}
+	docker push ${REGISTRY}/damien-side.fun.php-cli:${IMAGE_TAG}
 
 deploy:
 	ssh ${HOST} -p ${PORT} 'rm -rf site_${BUILD_NUMBER}'
