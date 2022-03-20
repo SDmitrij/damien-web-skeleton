@@ -43,6 +43,9 @@ api-lint:
 	docker-compose run --rm api-php-cli composer lint
 	docker-compose run --rm api-php-cli composer cscheck
 
+api-analyze:
+	docker-compose run --rm api-php-cli composer psalm
+
 push: push-gateway push-frontend push-api
 
 push-gateway:
