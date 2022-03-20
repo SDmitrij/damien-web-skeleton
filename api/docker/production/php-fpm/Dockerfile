@@ -24,7 +24,7 @@ RUN docker-php-ext-install opcache
 
 RUN mv $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini
 
-COPY ./common/php/conf.d /usr/local/etc/php/conf.d
+COPY ./docker/common/php/conf.d /usr/local/etc/php/conf.d
 COPY ./docker/production/php/conf.d /usr/local/etc/php/conf.d
 
 WORKDIR /app

@@ -1,7 +1,7 @@
 version: "3.7"
 services:
     gateway:
-        image: ${REGISTRY}/damien-gateway:${IMAGE_TAG}
+        image: ${REGISTRY}/damien-side.fun.gateway:${IMAGE_TAG}
         restart: always
         volumes:
           - /etc/letsencrypt:/etc/letsencrypt:ro
@@ -14,24 +14,24 @@ services:
           - api
 
     frontend:
-        image: ${REGISTRY}/damien-front:${IMAGE_TAG}
+        image: ${REGISTRY}/damien-side.fun.frontend:${IMAGE_TAG}
         restart: always
 
     api:
-        image: ${REGISTRY}/damien-api:${IMAGE_TAG}
+        image: ${REGISTRY}/damien-side.fun.api:${IMAGE_TAG}
         restart: always
         depends_on:
           - api-php-fpm
 
     api-php-fpm:
-        image: ${REGISTRY}/damien-api-php-fpm:${IMAGE_TAG}
+        image: ${REGISTRY}/damien-side.fun.php-fpm:${IMAGE_TAG}
         restart: always
         environment:
             APP_ENV: prod
             APP_DEBUG: 0
 
     api-php-cli:
-        image: ${REGISTRY}/damien-api-php-cli:${IMAGE_TAG}
+        image: ${REGISTRY}/damien-side.fun.php-cli:${IMAGE_TAG}
         environment:
             APP_ENV: prod
             APP_DEBUG: 0
