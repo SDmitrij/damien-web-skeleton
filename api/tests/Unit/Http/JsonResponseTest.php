@@ -6,6 +6,9 @@ use App\Http\JsonResponse;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
+/**
+ * @covers \App\Http\JsonResponse
+ */
 class JsonResponseTest extends TestCase
 {
     /**
@@ -19,6 +22,14 @@ class JsonResponseTest extends TestCase
 
         self::assertEquals($expected, $response->getBody()->getContents());
         self::assertEquals(200, $response->getStatusCode());
+    }
+
+    public function testWithCode(): void
+    {
+        $response = new JsonResponse('Hello', 201);
+
+        self::assertEquals('"Hello"', $response->getBody()->getContents());
+        self::assertEquals(201, $response->getStatusCode());
     }
 
     public function getCases(): array

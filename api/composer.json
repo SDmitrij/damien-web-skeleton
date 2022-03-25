@@ -10,6 +10,7 @@
         "php": "^7.4",
         "ext-json": "*",
         "php-di/php-di": "^6.3",
+        "ramsey/uuid": "^4.2",
         "slim/psr7": "^1.5",
         "slim/slim": "^4.10",
         "symfony/console": "^5.4"
@@ -37,6 +38,7 @@
         "cs-fix": "phpcbf",
         "psalm": "psalm",
         "app": "php bin/app.php --ansi",
-        "test": "phpunit --colors=always"
+        "test": "phpunit --colors=always",
+        "test-unit-coverage": "phpunit --colors=always --testsuite=unit --coverage-html var/coverage"
     }
 }

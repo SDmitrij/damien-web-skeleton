@@ -18,7 +18,7 @@ docker-pull:
 docker-build:
 	docker-compose build --pull
 
-api-init: api-composer-install
+api-init: api-composer-install api-permissions
 
 api-composer-install:
 	docker-compose run --rm api-php-cli composer install
@@ -43,8 +43,20 @@ api-lint:
 	docker-compose run --rm api-php-cli composer lint
 	docker-compose run --rm api-php-cli composer cscheck
 
+api-test-unit:
+	docker-compose run --rm api-php-cli composer test -- --testsuite=unit
+
+api-test-functional:
+	docker-compose run --rm api-php-cli composer test -- --testsuite=functional
+
 api-analyze:
 	docker-compose run --rm api-php-cli composer psalm
+
+api-clear:
+	docker run --rm -v ${PWD}/api:/app -w alpine sh -c 'rm -rf var/*'
+
+api-permissions:
+	docker run --rm -v ${PWD}/api:/app -w /app alpine chmod 777 var
 
 push: push-gateway push-frontend push-api
 
