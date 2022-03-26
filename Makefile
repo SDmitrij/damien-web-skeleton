@@ -43,6 +43,9 @@ api-lint:
 	docker-compose run --rm api-php-cli composer lint
 	docker-compose run --rm api-php-cli composer cscheck
 
+api-fix-code:
+	docker-compose run --rm api-php-cli composer cs-fix
+
 api-test-unit:
 	docker-compose run --rm api-php-cli composer test -- --testsuite=unit
 
