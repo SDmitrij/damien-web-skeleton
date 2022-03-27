@@ -2,6 +2,7 @@
 
 namespace App\Auth\Entity\User;
 
+use ArrayObject;
 use DateTimeImmutable;
 use DomainException;
 
@@ -10,19 +11,44 @@ class User
     private Id $id;
     private Email $email;
     private DateTimeImmutable $date;
-    private string $hash;
     private Status $status;
+    private ArrayObject $networks;
 
-    private ?Token $joinConfirmToken;
+    private ?string $hash = null;
+    private ?Token $joinConfirmToken = null;
 
-    public function __construct(Id $id, Email $email, DateTimeImmutable $date, string $hash, Token $token)
+    public function __construct(Id $id, Email $email, DateTimeImmutable $date, Status $status)
     {
         $this->id = $id;
         $this->email = $email;
         $this->date = $date;
-        $this->hash = $hash;
-        $this->joinConfirmToken = $token;
-        $this->status = Status::wait();
+        $this->status = $status;
+        $this->networks = new ArrayObject();
+    }
+
+    public static function requestJoinByEmail(
+        Id $id,
+        DateTimeImmutable $date,
+        Email $email,
+        string $passwordHash,
+        Token $token
+    ): self {
+        $user = new self($id, $email, $date, Status::wait());
+        $user->hash = $passwordHash;
+        $user->joinConfirmToken = $token;
+
+        return $user;
+    }
+
+    public static function joinByNetwork(
+        Id $id,
+        DateTimeImmutable $date,
+        Email $email,
+        NetworkIdentity $identity
+    ): self {
+        $user = new self($id, $email, $date, Status::wait());
+        $user->networks->append($identity);
+        return $user;
     }
 
     public function getId(): Id
@@ -43,6 +69,12 @@ class User
     public function getHash(): string
     {
         return $this->hash;
+    }
+
+    public function setHash(string $hash): self
+    {
+        $this->hash = $hash;
+        return $this;
     }
 
     public function getJoinConfirmToken(): ?Token

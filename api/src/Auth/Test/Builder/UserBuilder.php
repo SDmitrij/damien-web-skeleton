@@ -4,6 +4,7 @@ namespace App\Auth\Test\Builder;
 
 use App\Auth\Entity\User\Email;
 use App\Auth\Entity\User\Id;
+use App\Auth\Entity\User\Status;
 use App\Auth\Entity\User\Token;
 use App\Auth\Entity\User\User;
 use DateTimeImmutable;
@@ -48,9 +49,9 @@ class UserBuilder
             $this->id,
             $this->email,
             $this->created,
-            $this->hash,
-            $this->joinConfirmToken
+            Status::wait()
         );
+        $user->setHash($this->hash);
         if ($this->active) {
             $user->confirmJoin(
                 $user->getJoinConfirmToken()->getValue(),
