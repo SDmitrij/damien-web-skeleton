@@ -19,13 +19,16 @@ class RequestTest extends TestCase
             $email = new Email('mail@user.com'),
             $created = new DateTimeImmutable(),
             $hash = 'hash',
-            $token = new Token(Uuid::uuid4()->toString(),new DateTimeImmutable())
+            $token = new Token(Uuid::uuid4()->toString(), new DateTimeImmutable())
         );
 
         self::assertEquals($id, $user->getId());
         self::assertEquals($email, $user->getEmail());
         self::assertEquals($created, $user->getDate());
         self::assertEquals($hash, $user->getHash());
-        self::assertEquals($token, $user->getToken());
+        self::assertEquals($token, $user->getJoinConfirmToken());
+
+        self::assertTrue($user->isWait());
+        self::assertFalse($user->isActive());
     }
 }
