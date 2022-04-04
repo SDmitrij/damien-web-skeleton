@@ -6,6 +6,7 @@ use App\Auth\Entity\User\Email;
 use App\Auth\Entity\User\Id;
 use App\Auth\Entity\User\Token;
 use App\Auth\Entity\User\User;
+use DateInterval;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
@@ -14,12 +15,15 @@ class RequestTest extends TestCase
 {
     public function testSuccess(): void
     {
-        $user = new User(
+        $user = User::requestJoinByEmail(
             $id = Id::generate(),
-            $email = new Email('mail@user.com'),
             $created = new DateTimeImmutable(),
-            $hash = 'hash',
-            $token = new Token(Uuid::uuid4()->toString(), new DateTimeImmutable())
+            $email = new Email('some-email@com.ru'),
+            $hash = 'hash-hash',
+            $token = new Token(
+                Uuid::uuid4()->toString(),
+                new DateTimeImmutable('+1 day')
+            )
         );
 
         self::assertEquals($id, $user->getId());

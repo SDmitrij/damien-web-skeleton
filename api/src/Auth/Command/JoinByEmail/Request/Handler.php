@@ -39,12 +39,12 @@ class Handler
     {
         $email = new Email($command->email);
         if ($this->users->hasByEmail($email)) {
-            throw new DomainException('User already exists.');
+            throw new DomainException('User with this email already exists.');
         }
-        $user = new User(
+        $user = User::requestJoinByEmail(
             Id::generate(),
-            $email,
             $created = new DateTimeImmutable(),
+            $email,
             $this->hasher->hash($command->password),
             $token = $this->tokenizer->generate($created)
         );

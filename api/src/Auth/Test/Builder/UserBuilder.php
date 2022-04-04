@@ -24,9 +24,12 @@ class UserBuilder
     {
         $this->id = Id::generate();
         $this->email = new Email('some-user@mail.com');
-        $this->hash = 'some-hash';
+        $this->hash = 'hash-hash-hash';
         $this->created = new DateTimeImmutable();
-        $this->joinConfirmToken = new Token(Uuid::uuid4()->toString(), $this->created->modify('+1 day'));
+        $this->joinConfirmToken = new Token(
+            Uuid::uuid4()->toString(),
+            new DateTimeImmutable('+1 day')
+        );
     }
 
     public function active(): self
@@ -51,6 +54,7 @@ class UserBuilder
             $this->created,
             Status::wait()
         );
+        $user->setJoinConfirmToken($this->joinConfirmToken);
         $user->setHash($this->hash);
         if ($this->active) {
             $user->confirmJoin(

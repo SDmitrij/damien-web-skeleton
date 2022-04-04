@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Auth\Entity\User;
 
 use ArrayObject;
@@ -51,6 +53,17 @@ class User
         return $user;
     }
 
+    public function attachNetwork(NetworkIdentity $identity): void
+    {
+        /** @var NetworkIdentity $existing */
+        foreach ($this->networks as $existing) {
+            if ($existing->isEqualsTo($identity)) {
+                throw new DomainException('Network is already attached.');
+            }
+        }
+        $this->networks->append($identity);
+    }
+
     public function getId(): Id
     {
         return $this->id;
@@ -82,6 +95,12 @@ class User
         return $this->joinConfirmToken;
     }
 
+    public function setJoinConfirmToken(Token $token): self
+    {
+        $this->joinConfirmToken = $token;
+        return $this;
+    }
+
     public function isWait(): bool
     {
         return $this->status->isWait();
@@ -100,5 +119,10 @@ class User
         $this->joinConfirmToken->validate($token, $date);
         $this->status = Status::active();
         $this->joinConfirmToken = null;
+    }
+
+    public function getNetworks(): array
+    {
+        return $this->networks->getArrayCopy();
     }
 }
