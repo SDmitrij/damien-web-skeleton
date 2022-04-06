@@ -33,8 +33,13 @@ class Token
         if ($this->value !== $token) {
             throw new DomainException('Incorrect token.');
         }
-        if ($date > $this->getExpires()) {
+        if ($this->isExpiredTo($date)) {
             throw new DomainException('Expired token.');
         }
+    }
+
+    public function isExpiredTo(DateTimeImmutable $date): bool
+    {
+        return $date >= $this->expires;
     }
 }
