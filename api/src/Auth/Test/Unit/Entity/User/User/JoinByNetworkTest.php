@@ -8,6 +8,5 @@ class JoinByNetworkTest extends TestCase
 {
     public function testSuccess(): void
     {
-
     }
 }

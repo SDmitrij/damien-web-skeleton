@@ -30,6 +30,42 @@ class ResetTest extends TestCase
         self::assertEquals($hash, $user->getHash());
     }
 
+    public function testInvalidToken(): void
+    {
+        $user = (new UserBuilder())->active()->build();
+
+        $now = new DateTimeImmutable();
+        $token = $this->createToken($now->modify('+1 hour'));
+
+        $user->requestPasswordReset($token, $now);
+
+        $this->expectExceptionMessage('Incorrect token.');
+
+        $user->resetPassword(Uuid::uuid4()->toString(), $now, 'hash-hash');
+    }
+
+    public function testExpiredToken(): void
+    {
+        $user = (new UserBuilder())->active()->build();
+
+        $now = new DateTimeImmutable();
+        $token = $this->createToken($now->modify('+1 hour'));
+
+        $user->requestPasswordReset($token, $now);
+
+        $this->expectExceptionMessage('Expired token.');
+        $user->resetPassword($token->getValue(), $now->modify('+1 day'), 'hash-hash');
+    }
+
+    public function testNotRequested(): void
+    {
+        $user = (new UserBuilder())->active()->build();
+
+        $now = new DateTimeImmutable();
+        $this->expectExceptionMessage('Resetting is not requested.');
+        $user->resetPassword(Uuid::uuid4()->toString(), $now, 'hash-hash');
+    }
+
     private function createToken(DateTimeImmutable $date): Token
     {
         return new Token(Uuid::uuid4()->toString(), $date);

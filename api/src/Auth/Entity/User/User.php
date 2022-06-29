@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Auth\Entity\User;
 
+use App\Auth\Service\PasswordHasher;
 use ArrayObject;
 use DateTimeImmutable;
 use DomainException;
@@ -84,6 +85,27 @@ class User
         $this->joinConfirmToken->validate($token, $date);
         $this->status = Status::active();
         $this->joinConfirmToken = null;
+    }
+
+    public function resetPassword(string $token, DateTimeImmutable $date, string $hash): void
+    {
+        if (null === $this->passwordResetToken) {
+            throw new DomainException('Resetting is not requested.');
+        }
+        $this->passwordResetToken->validate($token, $date);
+        $this->passwordResetToken = null;
+        $this->hash = $hash;
+    }
+
+    public function changePassword(string $current, string $new, PasswordHasher $hasher): void
+    {
+        if (null === $this->hash) {
+            throw new DomainException('User does not have an old password.');
+        }
+        if (!$hasher->validate($current, $this->hash)) {
+            throw new DomainException('Incorrect current password.');
+        }
+        $this->hash = $hasher->hash($new);
     }
 
     public function getId(): Id
