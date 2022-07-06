@@ -20,6 +20,7 @@ class Handler
     ) {
         $this->users = $users;
         $this->hasher = $hasher;
+        $this->flusher = $flusher;
     }
 
     public function handle(Command $command): void

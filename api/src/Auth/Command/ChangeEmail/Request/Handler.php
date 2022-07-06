@@ -2,10 +2,14 @@
 
 namespace App\Auth\Command\ChangeEmail\Request;
 
+use App\Auth\Entity\User\Email;
 use App\Auth\Entity\User\Id;
+use App\Auth\Service\NewEmailConfirmTokenSender;
 use App\Auth\Service\Tokenizer;
 use App\Auth\Service\UserRepository;
 use App\Flusher;
+use DateTimeImmutable;
+use DomainException;
 
 class Handler
 {
@@ -30,5 +34,20 @@ class Handler
     {
         $user = $this->users->get(new Id($command->id));
 
+        if ($this->users->hasByEmail($email = new Email($command->email))) {
+            throw new DomainException('Email is already in use.');
+        }
+
+        $date = new DateTimeImmutable();
+
+        $user->requestEmailChanging(
+            $token = $this->tokenizer->generate($date),
+            $date,
+            $email
+        );
+
+        $this->flusher->flush();
+
+        $this->sender->send($email, $token);
     }
 }

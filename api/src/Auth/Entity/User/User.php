@@ -6,20 +6,49 @@ namespace App\Auth\Entity\User;
 
 use App\Auth\Service\PasswordHasher;
 use ArrayObject;
+use Doctrine\ORM\Mapping as ORM;
 use DateTimeImmutable;
 use DomainException;
 
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="auth_users")
+ */
 class User
 {
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="auth_user_id")
+     */
     private Id $id;
+    /**
+     * @ORM\Column(type="auth_user_email")
+     */
     private Email $email;
+    /**
+     * @ORM\Column(type="date_immutable")
+     */
     private DateTimeImmutable $date;
+    /**
+     * @ORM\Column(type="auth_user_status")
+     */
     private Status $status;
+    /**
+     * @ORM\Column(type="auth_user_role")
+     */
+    private Role $role;
     private ArrayObject $networks;
-
+    /**
+     * @ORM\Column(type="auth_user_email", nullable=true)
+     */
+    private ?Email $newEmail = null;
+    /**
+     * @ORM\Column(type="string", name="password_hash", nullable=true)
+     */
     private ?string $hash = null;
     private ?Token $joinConfirmToken = null;
     private ?Token $passwordResetToken = null;
+    private ?Token $newEmailToken = null;
 
     public function __construct(Id $id, Email $email, DateTimeImmutable $date, Status $status)
     {
@@ -27,6 +56,7 @@ class User
         $this->email = $email;
         $this->date = $date;
         $this->status = $status;
+        $this->role = Role::user();
         $this->networks = new ArrayObject();
     }
 
@@ -77,6 +107,32 @@ class User
         $this->passwordResetToken = $token;
     }
 
+    public function requestEmailChanging(Token $token, DateTimeImmutable $date, Email $email): void
+    {
+        if (!$this->isActive()) {
+            throw new DomainException('User is not active.');
+        }
+        if ($this->email->isEqualTo($email)) {
+            throw new DomainException('Email is already in use.');
+        }
+        if (null !== $this->newEmailToken && !$this->newEmailToken->isExpiredTo($date)) {
+            throw new DomainException('Changing is already requested.');
+        }
+        $this->newEmail = $email;
+        $this->newEmailToken = $token;
+    }
+
+    public function confirmEmailChanging(string $token, DateTimeImmutable $date): void
+    {
+        if (null === $this->newEmail || null === $this->newEmailToken) {
+            throw new DomainException('Changing is not requested.');
+        }
+        $this->newEmailToken->validate($token, $date);
+        $this->email = $this->newEmail;
+        $this->newEmail = null;
+        $this->newEmailToken = null;
+    }
+
     public function confirmJoin(string $token, DateTimeImmutable $date): void
     {
         if (null === $this->joinConfirmToken) {
@@ -108,6 +164,21 @@ class User
         $this->hash = $hasher->hash($new);
     }
 
+    public function changeRole(Role $role): void
+    {
+        if ($this->role->isEqualTo($role)) {
+            throw new DomainException('Role is already same.');
+        }
+        $this->role = $role;
+    }
+
+    public function remove(): void
+    {
+        if (!$this->isWait()) {
+            throw new DomainException('Unable to remove active user.');
+        }
+    }
+
     public function getId(): Id
     {
         return $this->id;
@@ -116,6 +187,16 @@ class User
     public function getEmail(): Email
     {
         return $this->email;
+    }
+
+    public function getNewEmail(): ?Email
+    {
+        return $this->newEmail;
+    }
+
+    public function getNewEmailToken(): ?Token
+    {
+        return $this->newEmailToken;
     }
 
     public function getDate(): DateTimeImmutable
@@ -128,21 +209,9 @@ class User
         return $this->hash;
     }
 
-    public function setHash(string $hash): self
-    {
-        $this->hash = $hash;
-        return $this;
-    }
-
     public function getJoinConfirmToken(): ?Token
     {
         return $this->joinConfirmToken;
-    }
-
-    public function setJoinConfirmToken(Token $token): self
-    {
-        $this->joinConfirmToken = $token;
-        return $this;
     }
 
     public function getPasswordResetToken(): ?Token
@@ -163,5 +232,10 @@ class User
     public function getNetworks(): array
     {
         return $this->networks->getArrayCopy();
+    }
+
+    public function getRole(): Role
+    {
+        return $this->role;
     }
 }
