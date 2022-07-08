@@ -11,6 +11,7 @@
         "ext-json": "*",
         "doctrine/annotations": "^1.13",
         "doctrine/cache": "^2.2",
+        "doctrine/migrations": "^3.5",
         "doctrine/orm": "^2.12",
         "laminas/laminas-config-aggregator": "^1.7",
         "php-di/php-di": "^6.3",
