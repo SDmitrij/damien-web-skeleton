@@ -1,7 +1,9 @@
-init: docker-down-clear docker-pull docker-build docker-up api-init
+init: docker-down-clear docker-pull docker-build docker-up api-init api-fixtures
 up: docker-up
 down: docker-down
 restart: down up
+test: api-test-unit api-test-functional
+check: api-lint api-validate-schema test
 
 docker-up:
 	docker-compose up -d
@@ -18,10 +20,22 @@ docker-pull:
 docker-build:
 	docker-compose build --pull
 
-api-init: api-composer-install api-permissions
+api-init: api-permissions api-composer-install api-wait-db api-migrations
+
+api-migrations:
+	docker-compose run --rm api-php-cli composer app migrations:migrate
+
+api-fixtures:
+	docker-compose run --rm api-php-cli composer app fixtures:load
+
+api-validate-schema:
+	docker-compose run --rm api-php-cli
 
 api-composer-install:
 	docker-compose run --rm api-php-cli composer install
+
+api-wait-db:
+	docker-compose run --rm api-php-cli wait-for-it api-postgres:5432 -t 30
 
 build: build-gateway build-frontend build-api
 
@@ -81,7 +95,11 @@ deploy:
 	ssh ${HOST} -p ${PORT} 'cd site_${BUILD_NUMBER} && echo "COMPOSE_PROJECT_NAME=site" >> .env'
 	ssh ${HOST} -p ${PORT} 'cd site_${BUILD_NUMBER} && echo "REGISTRY=${REGISTRY}" >> .env'
 	ssh ${HOST} -p ${PORT} 'cd site_${BUILD_NUMBER} && echo "IMAGE_TAG=${IMAGE_TAG}" >> .env'
+	ssh ${HOST} -p ${PORT} 'cd site_${BUILD_NUMBER} && echo "API_DB_PASSWORD=${API_DB_PASSWORD}" >> .env'
 	ssh ${HOST} -p ${PORT} 'cd site_${BUILD_NUMBER} && docker-compose pull'
+	ssh ${HOST} -p ${PORT} 'cd site_${BUILD_NUMBER} && docker-compose up --build -d api-postgres'
+	ssh ${HOST} -p ${PORT} 'cd site_${BUILD_NUMBER} && docker-compose run --rm api-php-cli wait-for-it api-postgres:5432 -t 60'
+	ssh ${HOST} -p ${PORT} 'cd site_${BUILD_NUMBER} && docker-compose run --rm api-php-cli php bin/app.php migrations:migrate --no-interaction'
 	ssh ${HOST} -p ${PORT} 'cd site_${BUILD_NUMBER} && docker-compose up --build --remove-orphans -d'
 	ssh ${HOST} -p ${PORT} 'rm -f site'
 	ssh ${HOST} -p ${PORT} 'ln -sr site_${BUILD_NUMBER} site'

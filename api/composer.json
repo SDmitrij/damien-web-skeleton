@@ -13,19 +13,24 @@
         "doctrine/cache": "^2.2",
         "doctrine/migrations": "^3.5",
         "doctrine/orm": "^2.12",
+        "finesse/swiftmailer-defaults-plugin": "^2.0",
         "laminas/laminas-config-aggregator": "^1.7",
         "php-di/php-di": "^6.3",
         "ramsey/uuid": "^4.2",
         "slim/psr7": "^1.5",
         "slim/slim": "^4.10",
+        "swiftmailer/swiftmailer": "^6.0",
         "symfony/cache": "^5.4",
-        "symfony/console": "^5.4"
+        "symfony/console": "^5.4",
+        "twig/twig": "^3.4"
     },
     "require-dev": {
+        "doctrine/data-fixtures": "^1.5",
         "overtrue/phplint": "^3.0.6",
         "phpunit/phpunit": "^9.5",
         "roave/security-advisories": "dev-latest",
         "squizlabs/php_codesniffer": "^3.6.2",
+        "symfony/var-dumper": "^5.4",
         "vimeo/psalm": "^4.22"
     },
     "autoload": {

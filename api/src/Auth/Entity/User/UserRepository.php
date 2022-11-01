@@ -11,10 +11,9 @@ class UserRepository
     private EntityRepository $repo;
     private EntityManagerInterface $em;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, EntityRepository $repo)
     {
         $this->em = $em;
-        $repo = $em->getRepository(User::class);
         $this->repo = $repo;
     }
 

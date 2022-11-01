@@ -29,9 +29,42 @@ services:
         environment:
             APP_ENV: prod
             APP_DEBUG: 0
+            DB_HOST: api-postgres
+            DB_USER: app
+            DB_PASSWORD: ${API_DB_PASSWORD}
+            DB_NAME: app
+            MAILER_HOST: ${MAILER_HOST}
+            MAILER_PORT: ${MAILER_PORT}
+            MAILER_USER: ${MAILER_USER}
+            MAILER_PASSWORD: ${MAILER_PASSWORD}
+            MAILER_ENCRYPTION: tls
 
     api-php-cli:
         image: ${REGISTRY}/damien-side.fun.php-cli:${IMAGE_TAG}
         environment:
             APP_ENV: prod
             APP_DEBUG: 0
+            DB_HOST: api-postgres
+            DB_USER: app
+            DB_PASSWORD: ${API_DB_PASSWORD}
+            DB_NAME: app
+            MAILER_HOST: ${MAILER_HOST}
+            MAILER_PORT: ${MAILER_PORT}
+            MAILER_USER: ${MAILER_USER}
+            MAILER_PASSWORD: ${MAILER_PASSWORD}
+            MAILER_ENCRYPTION: tls
+            MAILER_FROM_EMAIL: ${API_MAILER_FROM_EMAIL}
+            FRONTEND_URL: https://demo-auction.deworker.pro
+
+    api-postgres:
+        image: postgres:12.2-alpine
+        restart: always
+        environment:
+            POSTGRES_USER: app
+            POSTGRES_PASSWORD: ${API_DB_PASSWORD}
+            POSTGRES_DB: app
+      volumes:
+        - api-postgres:/var/lib/postgresql/data
+
+volumes:
+    api-postgres:

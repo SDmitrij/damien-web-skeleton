@@ -40,13 +40,12 @@ $dependencyFactory = DependencyFactory::fromEntityManager(
 $provider = new Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider($em);
 
 foreach ($commands as $command) {
-    $current = $container->get($command);
-    if (is_subclass_of($current, AbstractEntityManagerCommand::class)) {
-        $cli->add(new $current($provider));
-    } elseif (is_subclass_of($command, DoctrineCommand::class)) {
-        $cli->add(new $current($dependencyFactory));
+    if (is_a($command, AbstractEntityManagerCommand::class, true)) {
+        $cli->add(new $command($provider));
+    } elseif (is_a($command, DoctrineCommand::class, true)) {
+        $cli->add(new $command($dependencyFactory));
     } else {
-        $cli->add($current);
+        $cli->add($container->get($command));
     }
 }
 $cli->run();
